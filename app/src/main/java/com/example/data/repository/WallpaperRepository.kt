@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.data.local.CustomAiEntity
 import com.example.data.local.DownloadedEntity
 import com.example.data.local.FavoriteEntity
+import com.example.data.local.UserEntity
 import com.example.data.local.WallpaperDatabase
 import com.example.data.model.Wallpaper
 import com.example.data.model.WallpaperCategory
@@ -719,5 +720,33 @@ class WallpaperRepository(context: Context) {
 
     suspend fun clearInteractions() {
         dao.clearAllInteractions()
+    }
+
+    // User Profile, Account & Login Information
+    fun getUserProfile(): Flow<UserEntity?> = dao.getUserProfile()
+
+    suspend fun saveUserProfile(user: UserEntity) {
+        dao.saveUserProfile(user)
+    }
+
+    suspend fun logoutUser() {
+        dao.logoutUser()
+    }
+
+    suspend fun ensureDefaultUser() {
+        // Initializes default user profile if empty
+        val defaultUser = UserEntity(
+            id = "primary_user",
+            email = "drodiasonu123@gmail.com",
+            name = "Sonu",
+            phone = "+91 98765 43210",
+            avatarUrl = "",
+            memberTier = "PRO VIP Member",
+            joinedDate = "September 2026",
+            isLoggedIn = true,
+            cloudSyncEnabled = true,
+            lastSyncTime = System.currentTimeMillis()
+        )
+        dao.saveUserProfile(defaultUser)
     }
 }

@@ -10,9 +10,10 @@ import androidx.room.RoomDatabase
         FavoriteEntity::class,
         DownloadedEntity::class,
         CustomAiEntity::class,
-        UserInteractionEntity::class
+        UserInteractionEntity::class,
+        UserEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class WallpaperDatabase : RoomDatabase() {

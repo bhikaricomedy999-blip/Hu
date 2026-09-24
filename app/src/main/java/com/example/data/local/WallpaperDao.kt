@@ -51,4 +51,14 @@ interface WallpaperDao {
 
     @Query("DELETE FROM user_interactions")
     suspend fun clearAllInteractions()
+
+    // User Profile & Login
+    @Query("SELECT * FROM user_profile WHERE id = 'primary_user' LIMIT 1")
+    fun getUserProfile(): Flow<UserEntity?>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun saveUserProfile(user: UserEntity)
+
+    @Query("UPDATE user_profile SET isLoggedIn = 0 WHERE id = 'primary_user'")
+    suspend fun logoutUser()
 }

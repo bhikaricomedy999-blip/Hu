@@ -49,3 +49,18 @@ data class UserInteractionEntity(
     val interactionType: String, // "VIEW", "FAVORITE", "DOWNLOAD", "APPLIED"
     val timestamp: Long = System.currentTimeMillis()
 )
+
+@Entity(tableName = "user_profile")
+data class UserEntity(
+    @PrimaryKey
+    val id: String = "primary_user",
+    val email: String = "drodiasonu123@gmail.com",
+    val name: String = "Sonu",
+    val phone: String = "+91 98765 43210",
+    val avatarUrl: String = "",
+    val memberTier: String = "PRO Member",
+    val joinedDate: String = "September 2026",
+    val isLoggedIn: Boolean = true,
+    val cloudSyncEnabled: Boolean = true,
+    val lastSyncTime: Long = System.currentTimeMillis()
+)

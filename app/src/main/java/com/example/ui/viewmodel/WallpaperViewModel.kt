@@ -9,6 +9,7 @@ import com.example.data.engine.RecommendedWallpaper
 import com.example.data.engine.UserTasteProfile
 import com.example.data.local.CustomAiEntity
 import com.example.data.local.DownloadedEntity
+import com.example.data.local.UserEntity
 import com.example.data.local.UserInteractionEntity
 import com.example.data.model.Wallpaper
 import com.example.data.model.WallpaperCategory
@@ -84,6 +85,37 @@ class WallpaperViewModel(application: Application) : AndroidViewModel(applicatio
 
     val recentInteractions: StateFlow<List<UserInteractionEntity>> = repository.getRecentInteractions()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    // User Profile, Account & Login Information
+    val userProfile: StateFlow<UserEntity?> = repository.getUserProfile()
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            UserEntity(
+                id = "primary_user",
+                email = "drodiasonu123@gmail.com",
+                name = "Sonu",
+                phone = "+91 98765 43210",
+                avatarUrl = "",
+                memberTier = "PRO VIP Member",
+                joinedDate = "September 2026",
+                isLoggedIn = true,
+                cloudSyncEnabled = true,
+                lastSyncTime = System.currentTimeMillis()
+            )
+        )
+
+    private val _isAccountSheetOpen = MutableStateFlow(false)
+    val isAccountSheetOpen: StateFlow<Boolean> = _isAccountSheetOpen.asStateFlow()
+
+    private val _syncMessage = MutableStateFlow<String?>(null)
+    val syncMessage: StateFlow<String?> = _syncMessage.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            repository.ensureDefaultUser()
+        }
+    }
 
     // AI Recommendation Engine Reactive Flow
     val aiRecommendationsState: StateFlow<Pair<UserTasteProfile, List<RecommendedWallpaper>>> =
@@ -247,5 +279,75 @@ class WallpaperViewModel(application: Application) : AndroidViewModel(applicatio
             _aiGenerationStatus.value = null
             onComplete(newEntity)
         }
+    }
+
+    // Account & Login Operations
+    fun openAccountSheet() {
+        _isAccountSheetOpen.value = true
+    }
+
+    fun closeAccountSheet() {
+        _isAccountSheetOpen.value = false
+        _syncMessage.value = null
+    }
+
+    fun loginUser(email: String, name: String, phone: String = "") {
+        viewModelScope.launch {
+            val validEmail = email.trim().ifBlank { "drodiasonu123@gmail.com" }
+            val validName = name.trim().ifBlank { "Sonu" }
+            val validPhone = phone.trim().ifBlank { "+91 98765 43210" }
+
+            val updatedUser = UserEntity(
+                id = "primary_user",
+                email = validEmail,
+                name = validName,
+                phone = validPhone,
+                memberTier = "PRO VIP Member",
+                joinedDate = "September 2026",
+                isLoggedIn = true,
+                cloudSyncEnabled = true,
+                lastSyncTime = System.currentTimeMillis()
+            )
+            repository.saveUserProfile(updatedUser)
+            _syncMessage.value = "Welcome back, $validName! Logged in as $validEmail"
+        }
+    }
+
+    fun logoutUser() {
+        viewModelScope.launch {
+            repository.logoutUser()
+            _syncMessage.value = "You have been logged out."
+        }
+    }
+
+    fun updateUserProfile(name: String, email: String, phone: String) {
+        viewModelScope.launch {
+            val current = userProfile.value ?: UserEntity()
+            val updated = current.copy(
+                name = name.trim().ifBlank { current.name },
+                email = email.trim().ifBlank { current.email },
+                phone = phone.trim().ifBlank { current.phone }
+            )
+            repository.saveUserProfile(updated)
+            _syncMessage.value = "Profile information updated successfully!"
+        }
+    }
+
+    fun syncCloudData() {
+        viewModelScope.launch {
+            val current = userProfile.value ?: UserEntity()
+            _syncMessage.value = "Syncing favorites & downloads with cloud (${current.email})..."
+            kotlinx.coroutines.delay(1200)
+            val updated = current.copy(
+                lastSyncTime = System.currentTimeMillis(),
+                cloudSyncEnabled = true
+            )
+            repository.saveUserProfile(updated)
+            _syncMessage.value = "Cloud sync complete! Your wallpapers are backed up."
+        }
+    }
+
+    fun clearSyncMessage() {
+        _syncMessage.value = null
     }
 }

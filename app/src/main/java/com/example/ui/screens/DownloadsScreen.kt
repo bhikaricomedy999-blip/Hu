@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.OfflinePin
@@ -80,6 +81,7 @@ fun DownloadsScreen(
 ) {
     val context = LocalContext.current
     val downloads by viewModel.downloads.collectAsState()
+    val userProfile by viewModel.userProfile.collectAsState()
 
     var selectedForSet by remember { mutableStateOf<DownloadedEntity?>(null) }
     var isApplying by remember { mutableStateOf(false) }
@@ -95,23 +97,56 @@ fun DownloadsScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Filled.Download,
-                    contentDescription = "Downloads",
-                    tint = CyanNeon,
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.size(8.dp))
-                Text(
-                    text = "Downloads & Offline",
-                    color = TextPrimary,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold
-                )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Filled.Download,
+                        contentDescription = "Downloads",
+                        tint = CyanNeon,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Text(
+                        text = "Downloads & Offline",
+                        color = TextPrimary,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                // Cloud Backup indicator
+                Surface(
+                    color = com.example.ui.theme.DarkSurface,
+                    shape = RoundedCornerShape(12.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, DarkBorder),
+                    modifier = Modifier.clickable { viewModel.openAccountSheet() }
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.CloudDone,
+                            contentDescription = null,
+                            tint = EmeraldNeon,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Cloud Backup",
+                            color = EmeraldNeon,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
             }
             Text(
-                text = "${downloads.size} wallpapers saved on your device for offline viewing & application",
+                text = "${downloads.size} offline wallpapers • Linked to ${userProfile?.email ?: "drodiasonu123@gmail.com"}",
                 color = TextSecondary,
                 fontSize = 12.sp
             )

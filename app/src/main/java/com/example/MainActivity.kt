@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.example.ui.components.WallpaperBottomBar
+import com.example.ui.screens.AccountLoginSheet
 import com.example.ui.screens.AiStudioScreen
 import com.example.ui.screens.CategoriesScreen
 import com.example.ui.screens.CategoryDetailScreen
@@ -57,6 +58,7 @@ fun WallpaperWorldApp(viewModel: WallpaperViewModel) {
     val selectedCategory by viewModel.selectedCategory.collectAsState()
     val favorites by viewModel.favorites.collectAsState()
     val downloads by viewModel.downloads.collectAsState()
+    val isAccountSheetOpen by viewModel.isAccountSheetOpen.collectAsState()
 
     // Handle back button presses gracefully
     BackHandler(enabled = selectedWallpaper != null || selectedCategory != null || currentTab != MainNavigationTab.HOME) {
@@ -146,6 +148,14 @@ fun WallpaperWorldApp(viewModel: WallpaperViewModel) {
                     }
                 }
             }
+        }
+
+        // Account / Login Modal Sheet
+        if (isAccountSheetOpen) {
+            AccountLoginSheet(
+                viewModel = viewModel,
+                onDismiss = { viewModel.closeAccountSheet() }
+            )
         }
     }
 }

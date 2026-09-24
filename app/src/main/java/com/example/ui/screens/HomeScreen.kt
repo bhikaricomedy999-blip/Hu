@@ -25,10 +25,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Search
@@ -106,6 +109,7 @@ fun HomeScreen(
     val isAmoledOnly by viewModel.isAmoledOnly.collectAsState()
     val favorites by viewModel.favorites.collectAsState()
     val aiState by viewModel.aiRecommendationsState.collectAsState()
+    val userProfile by viewModel.userProfile.collectAsState()
 
     val (tasteProfile, recommendations) = aiState
     val filteredList = viewModel.getFilteredWallpapers()
@@ -154,29 +158,131 @@ fun HomeScreen(
                         )
                     }
 
-                    // AI Taste Profile Button
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Account / Login Button
+                        Surface(
+                            color = DarkSurfaceElevated,
+                            shape = RoundedCornerShape(14.dp),
+                            border = androidx.compose.foundation.BorderStroke(
+                                1.dp,
+                                if (userProfile?.isLoggedIn == true) CyanNeon.copy(alpha = 0.5f) else DarkBorder
+                            ),
+                            modifier = Modifier
+                                .testTag("account_login_header_btn")
+                                .clickable { viewModel.openAccountSheet() }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                if (userProfile?.isLoggedIn == true) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(18.dp)
+                                            .background(CyanNeon, CircleShape),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = userProfile?.name?.firstOrNull()?.uppercase() ?: "S",
+                                            color = AmoledBackground,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.ExtraBold
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = userProfile?.name?.ifBlank { "Sonu" } ?: "Sonu",
+                                        color = CyanNeon,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                } else {
+                                    Icon(
+                                        imageVector = Icons.Filled.Person,
+                                        contentDescription = "Login",
+                                        tint = CyanNeon,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(5.dp))
+                                    Text(
+                                        text = "Login",
+                                        color = CyanNeon,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+
+                        // AI Taste Profile Button
+                        Surface(
+                            color = DarkSurfaceElevated,
+                            shape = RoundedCornerShape(14.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, PurpleNeon.copy(alpha = 0.5f)),
+                            modifier = Modifier.clickable { showTasteProfileDialog = true }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Psychology,
+                                    contentDescription = "AI Taste",
+                                    tint = PurpleNeon,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Text(
+                                    text = "AI Taste",
+                                    color = PurpleNeon,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Logged in user info bar
+                if (userProfile?.isLoggedIn == true) {
+                    Spacer(modifier = Modifier.height(8.dp))
                     Surface(
-                        color = DarkSurfaceElevated,
-                        shape = RoundedCornerShape(14.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, PurpleNeon.copy(alpha = 0.5f)),
-                        modifier = Modifier.clickable { showTasteProfileDialog = true }
+                        color = DarkSurface,
+                        shape = RoundedCornerShape(10.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, DarkBorder),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { viewModel.openAccountSheet() }
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 10.dp, vertical = 6.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                imageVector = Icons.Filled.Psychology,
-                                contentDescription = "AI Taste",
-                                tint = PurpleNeon,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(5.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Filled.CloudDone,
+                                    contentDescription = null,
+                                    tint = EmeraldNeon,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "Account: ${userProfile?.email ?: "drodiasonu123@gmail.com"}",
+                                    color = TextSecondary,
+                                    fontSize = 11.sp
+                                )
+                            }
                             Text(
-                                text = "AI Taste",
-                                color = PurpleNeon,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold
+                                text = "PRO VIP • View Info >",
+                                color = CyanNeon,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
                     }
