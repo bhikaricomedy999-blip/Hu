@@ -1,0 +1,6 @@
+{
+  "name": "Wallpaper World",
+  "description": "Discover, preview, download and set premium 4K, AMOLED, and HD wallpapers across diverse categories with an AI wallpaper studio.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
